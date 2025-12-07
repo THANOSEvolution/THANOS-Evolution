@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THANOS Evolution - Rehabilitation System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+        }
+
+        .logo {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            margin-bottom: 50px;
+            opacity: 0.9;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 18px 40px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 80px;
+            max-width: 1200px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .feature-desc {
+            opacity: 0.8;
+            line-height: 1.6;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 450px;
+            width: 90%;
+            animation: slideUp 0.3s ease;
+            position: relative;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-title {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .modal-subtitle {
+            opacity: 0.7;
+            font-size: 0.9em;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2em;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .close-modal:hover {
+            opacity: 1;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .form-footer {
+            text-align: center;
+            margin-top: 20px;
+            opacity: 0.7;
+            font-size: 0.9em;
+        }
+
+        .form-link {
+            color: #6366f1;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .form-link:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #6366f1;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5em; }
+            .subtitle { font-size: 1.1em; }
+            .logo { font-size: 3em; }
+            .features { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="hero-content">
+            <div class="logo">🦾</div>
+            <h1>THANOS Evolution</h1>
+            <p class="subtitle">
+                Therapeutic Hand-Aid with Nerve Optimization Sensors<br>
+                Cloud-Based Rehabilitation for Post-Stroke Patients
+            </p>
+
+            <div class="cta-buttons">
+                <button class="btn btn-primary" onclick="openModal('doctor')">
+                    🏥 Doctor Login
+                </button>
+                <button class="btn btn-secondary" onclick="openModal('patient')">
+                    👤 Patient Login
+                </button>
+            </div>
+
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-title">Real-Time Monitoring</div>
+                    <div class="feature-desc">
+                        Track heart rate, SpO2, stress levels, and muscle activity in real-time.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎮</div>
+                    <div class="feature-title">Automated Exercises</div>
+                    <div class="feature-desc">
+                        12 pre-programmed therapeutic hand poses executed automatically.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">👨‍⚕️</div>
+                    <div class="feature-title">Remote Monitoring</div>
+                    <div class="feature-desc">
+                        Doctors monitor multiple patients simultaneously from anywhere.
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚠️</div>
+                    <div class="feature-title">Smart Alerts</div>
+                    <div class="feature-desc">
+                        Automatic detection of abnormal vitals with instant notifications.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctor Login Modal -->
+    <div id="doctorModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('doctor')">&times;</span>
+            <div class="modal-header">
+                <div class="modal-title">🏥 Doctor Portal</div>
+                <div class="modal-subtitle">Sign in to monitor your patients</div>
+            </div>
+
+            <div id="doctorAlert"></div>
+            <div id="doctorLoading" class="loading">
+                <div class="spinner"></div>
+                <p>Signing in...</p>
+            </div>
+
+            <form id="doctorLoginForm" onsubmit="handleDoctorLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" name="email" placeholder="doctor@hospital.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" name="password" placeholder="Enter password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-submit">Sign In</button>
+
+                <div class="form-footer">
+                    Don't have an account? <a href="#" class="form-link" onclick="openModal('doctor-register')">Register</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Patient Login Modal -->
+    <div id="patientModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('patient')">&times;</span>
+            <div class="modal-header">
+                <div class="modal-title">👤 Patient Portal</div>
+                <div class="modal-subtitle">Sign in to start your rehabilitation</div>
+            </div>
+
+            <div id="patientAlert"></div>
+            <div id="patientLoading" class="loading">
+                <div class="spinner"></div>
+                <p>Signing in...</p>
+            </div>
+
+            <form id="patientLoginForm" onsubmit="handlePatientLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" name="email" placeholder="patient@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" name="password" placeholder="Enter password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-submit">Sign In</button>
+
+                <div class="form-footer">
+                    Need access? Contact your doctor to register
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Doctor Registration Modal -->
+    <div id="doctorRegisterModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal('doctor-register')">&times;</span>
+            <div class="modal-header">
+                <div class="modal-title">🏥 Register as Doctor</div>
+                <div class="modal-subtitle">Create your healthcare provider account</div>
+            </div>
+
+            <div id="doctorRegisterAlert"></div>
+            <div id="doctorRegisterLoading" class="loading">
+                <div class="spinner"></div>
+                <p>Creating account...</p>
+            </div>
+
+            <form id="doctorRegisterForm" onsubmit="handleDoctorRegister(event)">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" name="name" placeholder="Dr. Sarah Mitchell" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" name="email" placeholder="doctor@hospital.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Department</label>
+                    <input type="text" class="form-input" name="department" placeholder="Rehabilitation Medicine" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Hospital/Clinic</label>
+                    <input type="text" class="form-input" name="hospital" placeholder="City Medical Center" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-input" name="password" placeholder="Minimum 8 characters" required minlength="8">
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-submit">Create Account</button>
+
+                <div class="form-footer">
+                    Already have an account? <a href="#" class="form-link" onclick="openModal('doctor')">Sign In</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000';
+
+        function openModal(type) {
+            closeAllModals();
+            const modalId = type === 'doctor' ? 'doctorModal' : 
+                           type === 'patient' ? 'patientModal' : 
+                           'doctorRegisterModal';
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(type) {
+            const modalId = type === 'doctor' ? 'doctorModal' : 
+                           type === 'patient' ? 'patientModal' : 
+                           'doctorRegisterModal';
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function closeAllModals() {
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.classList.remove('active');
+            });
+        }
+
+        async function handleDoctorLogin(event) {
+            event.preventDefault();
+            const form = event.target;
+            const email = form.email.value;
+            const password = form.password.value;
+
+            showLoading('doctor', true);
+            clearAlert('doctor');
+
+            try {
+                const response = await fetch(`${API_URL}/api/auth/doctor/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.doctor));
+                    localStorage.setItem('role', 'doctor');
+                    
+                    showAlert('doctor', 'Login successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'doctor.html';
+                    }, 1000);
+                } else {
+                    showAlert('doctor', data.error || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showAlert('doctor', 'Connection error. Please try again.', 'error');
+            } finally {
+                showLoading('doctor', false);
+            }
+        }
+
+        async function handlePatientLogin(event) {
+            event.preventDefault();
+            const form = event.target;
+            const email = form.email.value;
+            const password = form.password.value;
+
+            showLoading('patient', true);
+            clearAlert('patient');
+
+            try {
+                const response = await fetch(`${API_URL}/api/auth/patient/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.patient));
+                    localStorage.setItem('role', 'patient');
+                    
+                    showAlert('patient', 'Login successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'patient.html';
+                    }, 1000);
+                } else {
+                    showAlert('patient', data.error || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showAlert('patient', 'Connection error. Please try again.', 'error');
+            } finally {
+                showLoading('patient', false);
+            }
+        }
+
+        async function handleDoctorRegister(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = {
+                name: form.name.value,
+                email: form.email.value,
+                department: form.department.value,
+                hospital: form.hospital.value,
+                password: form.password.value
+            };
+
+            showLoading('doctorRegister', true);
+            clearAlert('doctorRegister');
+
+            try {
+                const response = await fetch(`${API_URL}/api/auth/doctor/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.doctor));
+                    localStorage.setItem('role', 'doctor');
+                    
+                    showAlert('doctorRegister', 'Account created! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'doctor.html';
+                    }, 1000);
+                } else {
+                    showAlert('doctorRegister', data.error || 'Registration failed', 'error');
+                }
+            } catch (error) {
+                showAlert('doctorRegister', 'Connection error. Please try again.', 'error');
+            } finally {
+                showLoading('doctorRegister', false);
+            }
+        }
+
+        function showLoading(type, show) {
+            const loadingId = type + 'Loading';
+            const formId = type === 'doctor' ? 'doctorLoginForm' :
+                          type === 'patient' ? 'patientLoginForm' :
+                          'doctorRegisterForm';
+            
+            document.getElementById(loadingId).style.display = show ? 'block' : 'none';
+            document.getElementById(formId).style.display = show ? 'none' : 'block';
+        }
+
+        function showAlert(type, message, alertType) {
+            const alertId = type + 'Alert';
+            const alertClass = alertType === 'success' ? 'alert-success' : 'alert-error';
+            
+            document.getElementById(alertId).innerHTML = `
+                <div class="alert ${alertClass}">${message}</div>
+            `;
+        }
+
+        function clearAlert(type) {
+            const alertId = type + 'Alert';
+            document.getElementById(alertId).innerHTML = '';
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+
+        window.onload = function() {
+            const token = localStorage.getItem('token');
+            const role = localStorage.getItem('role');
+            
+            if (token && role) {
+                if (role === 'doctor') {
+                    window.location.href = 'doctor.html';
+                } else if (role === 'patient') {
+                    window.location.href = 'patient.html';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
