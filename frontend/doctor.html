@@ -1,1 +1,949 @@
-ffvdvdv
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THANOS - Doctor Portal</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .doctor-info {
+            text-align: right;
+        }
+
+        .doctor-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .doctor-dept {
+            opacity: 0.7;
+            font-size: 0.9em;
+        }
+
+        .logout-btn {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            opacity: 0.7;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+
+        .patients-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .panel-title {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #4f46e5);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .tab.active {
+            background: rgba(99, 102, 241, 0.3);
+            border-color: #6366f1;
+        }
+
+        .patient-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .patient-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .patient-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(99, 102, 241, 0.5);
+            transform: translateX(5px);
+        }
+
+        .patient-card.active-session {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .patient-card.active-session::before {
+            content: '●';
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #10b981;
+            font-size: 1.5em;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .patient-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .patient-name {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .patient-id {
+            opacity: 0.7;
+            font-size: 0.85em;
+        }
+
+        .patient-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.3);
+            border: 1px solid #10b981;
+        }
+
+        .status-offline {
+            background: rgba(107, 114, 128, 0.3);
+            border: 1px solid #6b7280;
+        }
+
+        .patient-vitals {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .vital-mini {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.85em;
+        }
+
+        .vital-mini-label {
+            opacity: 0.7;
+            margin-bottom: 3px;
+        }
+
+        .vital-mini-value {
+            font-size: 1.4em;
+            font-weight: bold;
+        }
+
+        .patient-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85em;
+            opacity: 0.7;
+        }
+
+        .detail-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+
+        .no-selection {
+            text-align: center;
+            padding: 100px 20px;
+            opacity: 0.5;
+        }
+
+        .no-selection-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 650px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2em;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.3s;
+            z-index: 10;
+        }
+
+        .close-modal:hover {
+            opacity: 1;
+        }
+
+        .modal-header {
+            margin-bottom: 30px;
+        }
+
+        .modal-title {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .modal-subtitle {
+            opacity: 0.7;
+            font-size: 0.9em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            font-size: 1em;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: #6366f1;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .form-select {
+            cursor: pointer;
+        }
+
+        .form-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-section h3 {
+            margin-bottom: 15px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.2);
+            border: 1px solid #10b981;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+        }
+
+        @media (max-width: 1400px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-top">
+                <h1>🏥 THANOS Doctor Portal</h1>
+                <div class="doctor-info">
+                    <div class="doctor-name" id="doctorName">Loading...</div>
+                    <div class="doctor-dept" id="doctorDept">--</div>
+                    <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+                </div>
+            </div>
+
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalPatients">0</div>
+                    <div class="stat-label">Total Patients</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="activeSessions">0</div>
+                    <div class="stat-label">Active Sessions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="todaySessions">0</div>
+                    <div class="stat-label">Today's Sessions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="alertsCount">0</div>
+                    <div class="stat-label">Active Alerts</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="patients-panel">
+                <div class="panel-header">
+                    <div class="panel-title">📋 Patient List</div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button class="btn btn-primary" onclick="openRegisterModal()">
+                            ➕ Register Patient
+                        </button>
+                        <div class="filter-tabs">
+                            <div class="tab active" onclick="filterPatients('all')">All</div>
+                            <div class="tab" onclick="filterPatients('active')">Active</div>
+                            <div class="tab" onclick="filterPatients('offline')">Offline</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="patient-list" id="patientList">
+                    <p style="text-align: center; opacity: 0.5; padding: 40px;">Loading patients...</p>
+                </div>
+            </div>
+
+            <div class="detail-panel" id="detailPanel">
+                <div class="no-selection">
+                    <div class="no-selection-icon">👈</div>
+                    <p>Select a patient to view details</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patient Registration Modal -->
+    <div id="registerPatientModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeRegisterModal()">&times;</span>
+            
+            <div class="modal-header">
+                <div class="modal-title">👤 Register New Patient</div>
+                <div class="modal-subtitle">Add a patient to your monitoring system</div>
+            </div>
+
+            <div id="registerAlert"></div>
+
+            <form id="registerPatientForm" onsubmit="handlePatientRegistration(event)">
+                
+                <!-- Personal Information -->
+                <div class="form-section">
+                    <h3 style="color: #6366f1;">📋 Personal Information</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Full Name *</label>
+                        <input type="text" name="name" class="form-input" placeholder="John Anderson" required>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Age *</label>
+                            <input type="number" name="age" class="form-input" placeholder="58" min="18" max="120" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Gender *</label>
+                            <select name="gender" class="form-select" required>
+                                <option value="">Select...</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email Address *</label>
+                        <input type="email" name="email" class="form-input" placeholder="john.anderson@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Phone Number *</label>
+                        <input type="tel" name="phone" class="form-input" placeholder="+1 (555) 123-4567" required>
+                    </div>
+                </div>
+
+                <!-- Medical Information -->
+                <div class="form-section">
+                    <h3 style="color: #10b981;">🏥 Medical Information</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Diagnosis *</label>
+                        <select name="diagnosis" class="form-select" required>
+                            <option value="">Select diagnosis...</option>
+                            <option value="Ischemic Stroke">Ischemic Stroke</option>
+                            <option value="Hemorrhagic Stroke">Hemorrhagic Stroke</option>
+                            <option value="TIA">Transient Ischemic Attack (TIA)</option>
+                            <option value="Post-Stroke Hemiplegia">Post-Stroke Hemiplegia</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Affected Side *</label>
+                        <select name="affectedSide" class="form-select" required>
+                            <option value="">Select...</option>
+                            <option value="Right">Right Side</option>
+                            <option value="Left">Left Side</option>
+                            <option value="Bilateral">Bilateral</option>
+                        </select>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Incident Date</label>
+                            <input type="date" name="incidentDate" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Admission Date *</label>
+                            <input type="date" name="admissionDate" class="form-input" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Medical Notes</label>
+                        <textarea name="medicalNotes" class="form-input" rows="3" placeholder="Additional medical information..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Device Information -->
+                <div class="form-section">
+                    <h3 style="color: #f59e0b;">🔧 Device Information</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Arduino Device Serial Number</label>
+                        <input type="text" name="deviceSerial" class="form-input" placeholder="ARDUINO-12345-ABCDE">
+                        <small style="opacity: 0.7; font-size: 0.85em;">Optional: Assign device now or later</small>
+                    </div>
+                </div>
+
+                <!-- Emergency Contact -->
+                <div class="form-section">
+                    <h3 style="color: #ef4444;">🚨 Emergency Contact</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Contact Name *</label>
+                        <input type="text" name="emergencyName" class="form-input" placeholder="Jane Anderson" required>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Contact Phone *</label>
+                            <input type="tel" name="emergencyPhone" class="form-input" placeholder="+1 (555) 987-6543" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Relationship *</label>
+                            <select name="emergencyRelationship" class="form-select" required>
+                                <option value="">Select...</option>
+                                <option value="Spouse">Spouse</option>
+                                <option value="Child">Child</option>
+                                <option value="Parent">Parent</option>
+                                <option value="Sibling">Sibling</option>
+                                <option value="Friend">Friend</option>
+                                <option value="Caregiver">Caregiver</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Account Setup -->
+                <div class="form-section" style="background: rgba(99,102,241,0.1); border: 2px solid rgba(99,102,241,0.3);">
+                    <h3 style="color: #6366f1;">🔐 Account Setup</h3>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Temporary Password *</label>
+                        <input type="text" name="password" class="form-input" id="tempPassword" placeholder="Auto-generated">
+                        <button type="button" class="btn btn-secondary" style="margin-top: 10px; width: 100%;" onclick="generatePassword()">
+                            🔄 Generate Secure Password
+                        </button>
+                        <small style="opacity: 0.7; font-size: 0.85em; display: block; margin-top: 5px;">
+                            Patient will be prompted to change password on first login
+                        </small>
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeRegisterModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">✅ Register Patient</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000';
+        let currentFilter = 'all';
+        let allPatients = [];
+
+        // Check authentication
+        window.onload = function() {
+            const token = localStorage.getItem('token');
+            const role = localStorage.getItem('role');
+            
+            if (!token || role !== 'doctor') {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            document.getElementById('doctorName').textContent = user.name || 'Doctor';
+            document.getElementById('doctorDept').textContent = `${user.department || ''} • ${user.hospital || ''}`;
+
+            loadDashboard();
+            generatePassword(); // Auto-generate password for form
+        };
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        async function loadDashboard() {
+            await loadStats();
+            await loadPatients();
+        }
+
+        async function loadStats() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_URL}/api/doctor/stats`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById('totalPatients').textContent = data.stats.totalPatients;
+                    document.getElementById('activeSessions').textContent = data.stats.activeSessions;
+                    document.getElementById('todaySessions').textContent = data.stats.todaySessions;
+                    document.getElementById('alertsCount').textContent = data.stats.activeAlerts;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        async function loadPatients() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`${API_URL}/api/doctor/patients`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    allPatients = data.patients;
+                    displayPatients(allPatients);
+                }
+            } catch (error) {
+                console.error('Error loading patients:', error);
+                document.getElementById('patientList').innerHTML = '<p style="text-align: center; color: #ef4444;">Failed to load patients</p>';
+            }
+        }
+
+        function filterPatients(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            let filtered = allPatients;
+            if (filter === 'active') {
+                filtered = allPatients.filter(p => p.sessionActive);
+            } else if (filter === 'offline') {
+                filtered = allPatients.filter(p => !p.sessionActive);
+            }
+
+            displayPatients(filtered);
+        }
+
+        function displayPatients(patients) {
+            const patientList = document.getElementById('patientList');
+            
+            if (patients.length === 0) {
+                patientList.innerHTML = '<p style="text-align: center; opacity: 0.5; padding: 40px;">No patients found</p>';
+                return;
+            }
+
+            patientList.innerHTML = patients.map(patient => `
+                <div class="patient-card ${patient.sessionActive ? 'active-session' : ''}" onclick="selectPatient('${patient.patientId}')">
+                    <div class="patient-header">
+                        <div>
+                            <div class="patient-name">${patient.name}</div>
+                            <div class="patient-id">${patient.patientId}</div>
+                        </div>
+                        <div class="patient-status ${patient.sessionActive ? 'status-active' : 'status-offline'}">
+                            ${patient.sessionActive ? 'ACTIVE' : 'OFFLINE'}
+                        </div>
+                    </div>
+
+                    ${patient.sessionActive && patient.latestVitals ? `
+                        <div class="patient-vitals">
+                            <div class="vital-mini">
+                                <div class="vital-mini-label">Heart Rate</div>
+                                <div class="vital-mini-value">${patient.latestVitals.heartRate || '--'}</div>
+                            </div>
+                            <div class="vital-mini">
+                                <div class="vital-mini-label">SpO2</div>
+                                <div class="vital-mini-value">${patient.latestVitals.spo2 || '--'}%</div>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <div class="patient-meta">
+                        <span>📅 Age: ${patient.age}</span>
+                        <span>📋 ${patient.diagnosis}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function selectPatient(patientId) {
+            const patient = allPatients.find(p => p.patientId === patientId);
+            if (!patient) return;
+
+            const detailPanel = document.getElementById('detailPanel');
+            detailPanel.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <h2 style="font-size: 2em; margin-bottom: 10px;">${patient.name}</h2>
+                    <div style="opacity: 0.7;">
+                        <strong>ID:</strong> ${patient.patientId} | 
+                        <strong>Age:</strong> ${patient.age} | 
+                        <strong>Gender:</strong> ${patient.gender || 'N/A'}
+                    </div>
+                </div>
+
+                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 15px;">🏥 Medical Information</h3>
+                    <p><strong>Diagnosis:</strong> ${patient.diagnosis}</p>
+                    <p><strong>Affected Side:</strong> ${patient.affectedSide || 'N/A'}</p>
+                    <p><strong>Admission Date:</strong> ${patient.admissionDate ? new Date(patient.admissionDate).toLocaleDateString() : 'N/A'}</p>
+                    ${patient.medicalNotes ? `<p><strong>Notes:</strong> ${patient.medicalNotes}</p>` : ''}
+                </div>
+
+                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+                    <h3 style="margin-bottom: 15px;">📞 Contact Information</h3>
+                    <p><strong>Email:</strong> ${patient.email}</p>
+                    <p><strong>Phone:</strong> ${patient.phone}</p>
+                    ${patient.emergencyContact ? `
+                        <p><strong>Emergency Contact:</strong> ${patient.emergencyContact.name} (${patient.emergencyContact.relationship})</p>
+                        <p><strong>Emergency Phone:</strong> ${patient.emergencyContact.phone}</p>
+                    ` : ''}
+                </div>
+
+                ${patient.sessionActive ? `
+                    <div style="background: rgba(16,185,129,0.1); padding: 20px; border-radius: 15px; border: 2px solid #10b981; margin-bottom: 20px;">
+                        <h3 style="margin-bottom: 15px; color: #10b981;">🎯 Active Session</h3>
+                        <p><strong>Exercise:</strong> ${patient.currentSession?.currentExercise || 'In Progress'}</p>
+                        <p><strong>Duration:</strong> ${Math.floor((patient.currentSession?.duration || 0) / 60)}m ${(
+patient.currentSession?.duration || 0) % 60}s</p>
+${patient.latestVitals ?                             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px;">                                 <div><strong>HR:</strong> ${patient.latestVitals.heartRate || '--'} bpm</div>                                 <div><strong>SpO2:</strong> ${patient.latestVitals.spo2 || '--'}%</div>                                 <div><strong>GSR:</strong> ${patient.latestVitals.gsr || '--'}</div>                                 <div><strong>EMG:</strong> ${patient.latestVitals.emg || '--'} µV</div>                             </div>                         : ''}
+</div>
+` : ''}
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                <button class="btn btn-primary" onclick="alert('Feature coming soon!')">📊 View History</button>
+                <button class="btn btn-secondary" onclick="alert('Feature coming soon!')">📝 Add Notes</button>
+            </div>
+        `;
+    }
+
+    // Registration Modal Functions
+    function openRegisterModal() {
+        document.getElementById('registerPatientModal').classList.add('active');
+        generatePassword();
+    }
+
+    function closeRegisterModal() {
+        document.getElementById('registerPatientModal').classList.remove('active');
+        document.getElementById('registerPatientForm').reset();
+        document.getElementById('registerAlert').innerHTML = '';
+    }
+
+    function generatePassword() {
+        const length = 12;
+        const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+        let password = "";
+        for (let i = 0; i < length; i++) {
+            password += charset.charAt(Math.floor(Math.random() * charset.length));
+        }
+        document.getElementById('tempPassword').value = password;
+    }
+
+    async function handlePatientRegistration(event) {
+        event.preventDefault();
+        
+        const form = event.target;
+        const formData = new FormData(form);
+        
+        const patientData = {
+            name: formData.get('name'),
+            age: parseInt(formData.get('age')),
+            gender: formData.get('gender'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            diagnosis: formData.get('diagnosis'),
+            affectedSide: formData.get('affectedSide'),
+            incidentDate: formData.get('incidentDate'),
+            admissionDate: formData.get('admissionDate'),
+            medicalNotes: formData.get('medicalNotes'),
+            deviceSerial: formData.get('deviceSerial'),
+            emergencyContact: {
+                name: formData.get('emergencyName'),
+                phone: formData.get('emergencyPhone'),
+                relationship: formData.get('emergencyRelationship')
+            },
+            password: formData.get('password')
+        };
+        
+        try {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.textContent = '⏳ Registering...';
+            submitBtn.disabled = true;
+            
+            const token = localStorage.getItem('token');
+            const response = await fetch(`${API_URL}/api/auth/patient/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(patientData)
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                const credentials = `THANOS Login Credentials\n\nEmail: ${patientData.email}\nPassword: ${patientData.password}\n\nLogin at: ${window.location.origin}`;
+                navigator.clipboard.writeText(credentials);
+                
+                document.getElementById('registerAlert').innerHTML = `
+                    <div class="alert alert-success">
+                        ✅ Patient registered successfully!<br><br>
+                        <strong>Login Credentials:</strong><br>
+                        Email: ${patientData.email}<br>
+                        Password: ${patientData.password}<br><br>
+                        ✓ Credentials copied to clipboard!
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    closeRegisterModal();
+                    loadDashboard();
+                }, 3000);
+            } else {
+                document.getElementById('registerAlert').innerHTML = `
+                    <div class="alert alert-error">❌ Error: ${data.error}</div>
+                `;
+            }
+            
+            submitBtn.textContent = '✅ Register Patient';
+            submitBtn.disabled = false;
+            
+        } catch (error) {
+            console.error('Registration error:', error);
+            document.getElementById('registerAlert').innerHTML = `
+                <div class="alert alert-error">❌ Connection error. Please try again.</div>
+            `;
+            
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.textContent = '✅ Register Patient';
+            submitBtn.disabled = false;
+        }
+    }
+
+    // Auto-refresh every 5 seconds
+    setInterval(() => {
+        loadStats();
+        loadPatients();
+    }, 5000);
+</script>
+</body>
+</html>
